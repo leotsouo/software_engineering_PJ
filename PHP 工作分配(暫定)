@@ -1,0 +1,69 @@
+👤 A 負責：使用者報名與下載流程
+📌 功能：
+✅ submit_form.php（報名參賽）→ 已有，需強化欄位檢查與成功回饋
+
+🔨 cancel_registration.php（取消報名）→ 新增
+
+✅ confirmation.php（查詢報名資料）→ 已有，補上「可修改」流程
+
+🔨 download_certificate.php（下載電子證書）→ 新增
+
+✅ rank.php（查詢得獎名單）→ 已有，加入搜尋條件（如組別、關鍵字）
+
+📎 任務說明：
+確保流程表單有防呆（空值、格式）
+
+上傳檔案可驗證副檔名與大小（<10MB）
+
+證書下載可先用假 PDF 做出範例
+
+導入 $_SESSION 管理登入者身份與限制權限
+
+👤 B 負責：評審後台與評分功能擴充
+📌 功能：
+✅ judge_dashboard.php（修改作品評分）→ 已有，補上留言欄位與送出按鈕
+
+🔨 criteria_manage.php（新增/修改/刪除評分標準）→ 新增
+
+🔨 加入搜尋功能（作品名稱、年份）於 judge_dashboard.php
+
+🔨 view_feedback.php（讓學生檢視評審評語）→ 新增
+
+✅ 登入功能 login_judge.php → 需補上身份驗證與錯誤訊息
+
+📎 任務說明：
+製作一個評審打分表（含下拉式標準 + 評語欄）
+
+連接資料表 scores 與 comments
+
+評分送出後需禁止再次修改（LOCK 機制或 flag 欄位）
+
+建立 AJAX 的增刪評分標準功能更佳
+
+👤 C 負責：公告、歷屆作品、系統通知功能
+📌 功能：
+✅ announcement.php（前台公告查看）→ 確保顯示格式美觀
+
+✅ manage_announcements.php（後台管理）→ 補上新增/編輯/刪除回饋
+
+🔨 past_winners.php（歷屆作品查詢）→ 新增
+
+🔨 reminder_email.php（報名截止提醒通知）→ 可用排程模擬
+
+✅ login_admin.php、admin_dashboard.php → 管理功能登入流程檢查
+
+📎 任務說明：
+公告可附加檔案（PDF、JPG）
+
+可加一個「是否發送 Email」 的 checkbox
+
+歷屆作品可使用假資料建立查詢結果表格
+
+Email 通知可模擬（或單純寫入 log.txt ）
+
+📦 各自共通工作：
+✅ 整合 db_connection.php 並統一錯誤訊息處理方式
+
+✅ 需呼叫 session_start() 控管身分
+
+🔐 頁面前要檢查登入狀態，未登入自動導回 login.php
