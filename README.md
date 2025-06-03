@@ -1,3 +1,7 @@
+放到XAMPP資料夾
+![image](https://github.com/user-attachments/assets/a6a75890-12ff-46ff-a33f-600d64bff54b)
+
+
 index.php是首頁
 (1) 系統架構
   >可以直接參考（畫圖）
