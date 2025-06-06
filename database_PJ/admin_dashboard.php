@@ -16,6 +16,25 @@ $admin_name = $_SESSION['admin_name'];
 // 用來存放「公告管理」或「輪播圖管理」的操作後訊息
 $message = '';
 
+// ------------------ 證書上傳功能 ------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_certificate_pdf'])) {
+    $uploadDir = __DIR__ . '/uploads/certificates/';
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+    if (isset($_FILES['certificate_pdf']) && $_FILES['certificate_pdf']['error'] === UPLOAD_ERR_OK) {
+        $tmpName = $_FILES['certificate_pdf']['tmp_name'];
+        $fileName = 'certificate_template.pdf'; // 固定名稱
+        $destination = $uploadDir . $fileName;
+
+        if (move_uploaded_file($tmpName, $destination)) {
+            $message = "證書 PDF 已成功上傳！";
+        } else {
+            $message = "證書上傳失敗！";
+        }
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
 // ------------------ 公告管理：新增、編輯、刪除 ------------------
 try {
     // 1. 取得所有公告
@@ -139,7 +158,6 @@ try {
 
             $stmt_update_carousel->execute();
             $message = "輪播圖已成功更新！";
-
         } else {
             // 新增輪播圖（必須要有圖片路徑才新增，否則可以先檢查是否有上傳成功）
             if (!empty($uploadedImagePath)) {
@@ -244,6 +262,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,15 +274,19 @@ try {
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #0057b8;
             color: white;
             padding: 15px;
             text-align: center;
         }
-        header h1, header p {
+
+        header h1,
+        header p {
             margin: 0;
         }
+
         .container {
             max-width: 1000px;
             margin: 20px auto;
@@ -272,38 +295,47 @@ try {
             border-radius: 8px;
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
+
         h2 {
             margin-top: 0;
             color: #0057b8;
             border-left: 6px solid #0073e6;
             padding-left: 10px;
         }
+
         .message {
             color: green;
             font-weight: bold;
             margin-bottom: 20px;
         }
+
         .section {
             margin-bottom: 50px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
         }
-        table th, table td {
+
+        table th,
+        table td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
             vertical-align: middle;
         }
+
         table th {
             background-color: #0057b8;
             color: white;
         }
+
         table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .btn {
             display: inline-block;
             background-color: #0073e6;
@@ -315,17 +347,21 @@ try {
             transition: background-color 0.3s ease;
             margin: 5px 0;
         }
+
         .btn:hover {
             background-color: #005bb5;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
         }
+
         .form-group input[type="text"],
         .form-group input[type="file"],
         .form-group textarea {
@@ -335,15 +371,18 @@ try {
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         .form-group textarea {
             resize: vertical;
         }
+
         .form-toggle {
             display: none;
             margin-top: 10px;
             padding: 15px;
             border-top: 2px solid #ddd;
         }
+
         .img-preview {
             max-width: 200px;
             max-height: 120px;
@@ -396,186 +435,249 @@ try {
         }
     </script>
 </head>
+
 <body>
 
-<header>
-    <h1>後台管理頁面</h1>
-    <p>歡迎，<?= htmlspecialchars($admin_name) ?>！</p>
-</header>
+    <header>
+        <h1>後台管理頁面</h1>
+        <p>歡迎，<?= htmlspecialchars($admin_name) ?>！</p>
+    </header>
 
-<div class="container">
+    <div class="container">
 
-    <!-- 若有任何操作訊息，顯示在這裡 -->
-    <?php if (!empty($message)): ?>
-        <p class="message"><?= htmlspecialchars($message) ?></p>
-    <?php endif; ?>
+        <!-- 若有任何操作訊息，顯示在這裡 -->
+        <?php if (!empty($message)): ?>
+            <p class="message"><?= htmlspecialchars($message) ?></p>
+        <?php endif; ?>
 
-    <!-- -------------------- 公告管理 -------------------- -->
-    <div class="section">
-        <h2>公告管理</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>公告ID</th>
-                    <th>標題</th>
-                    <th>內容</th>
-                    <th>發布日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($announcements)): ?>
-                    <tr><td colspan="5">目前無公告。</td></tr>
-                <?php else: ?>
-                    <?php foreach ($announcements as $announcement): ?>
+        <!-- -------------------- 公告管理 -------------------- -->
+        <div class="section">
+            <h2>公告管理</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>公告ID</th>
+                        <th>標題</th>
+                        <th>內容</th>
+                        <th>發布日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($announcements)): ?>
                         <tr>
-                            <td><?= htmlspecialchars($announcement['AnnouncementID']) ?></td>
-                            <td><?= htmlspecialchars($announcement['Title']) ?></td>
-                            <td><?= nl2br(htmlspecialchars($announcement['Content'])) ?></td>
-                            <td><?= htmlspecialchars($announcement['PublishDate']) ?></td>
-                            <td>
-                                <button class="btn"
+                            <td colspan="5">目前無公告。</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($announcements as $announcement): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($announcement['AnnouncementID']) ?></td>
+                                <td><?= htmlspecialchars($announcement['Title']) ?></td>
+                                <td><?= nl2br(htmlspecialchars($announcement['Content'])) ?></td>
+                                <td><?= htmlspecialchars($announcement['PublishDate']) ?></td>
+                                <td>
+                                    <button class="btn"
                                         onclick="toggleAnnouncementForm(
                                             '<?= htmlspecialchars($announcement['AnnouncementID']) ?>',
                                             '<?= htmlspecialchars($announcement['Title']) ?>',
                                             '<?= htmlspecialchars($announcement['Content']) ?>'
                                         )">
-                                    編輯
-                                </button>
-                                <a class="btn" href="?delete_announcement_id=<?= htmlspecialchars($announcement['AnnouncementID']) ?>">刪除</a>
-                                <!--新增上傳附件功能!---點了上傳附件按鈕之後取得對應的AnnouncementID,跳出上傳附件的區塊讓用戶輸入的資料存到table:attachment-->
-                                <button class="btn"
-                                    onclick="toggleAttachmentForm('<?= htmlspecialchars($announcement['AnnouncementID']) ?>')">
-                                    上傳附件
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                                        編輯
+                                    </button>
+                                    <a class="btn" href="?delete_announcement_id=<?= htmlspecialchars($announcement['AnnouncementID']) ?>">刪除</a>
+                                    <!--新增上傳附件功能!---點了上傳附件按鈕之後取得對應的AnnouncementID,跳出上傳附件的區塊讓用戶輸入的資料存到table:attachment-->
+                                    <button class="btn"
+                                        onclick="toggleAttachmentForm('<?= htmlspecialchars($announcement['AnnouncementID']) ?>')">
+                                        上傳附件
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
-        <button class="btn" onclick="toggleAnnouncementForm()">新增公告</button>
+            <button class="btn" onclick="toggleAnnouncementForm()">新增公告</button>
 
-        <!-- 新增/編輯公告表單 -->
-        <div id="announcement-form" class="form-toggle">
-            <h3>新增/編輯 公告</h3>
-            <form method="POST" action="">
-                <!-- 用於判斷是公告表單還是輪播圖表單 -->
-                <input type="hidden" name="announcement_form" value="1">
-                <input type="hidden" id="announcement-id" name="announcement_id">
+            <!-- 新增/編輯公告表單 -->
+            <div id="announcement-form" class="form-toggle">
+                <h3>新增/編輯 公告</h3>
+                <form method="POST" action="">
+                    <!-- 用於判斷是公告表單還是輪播圖表單 -->
+                    <input type="hidden" name="announcement_form" value="1">
+                    <input type="hidden" id="announcement-id" name="announcement_id">
+
+                    <div class="form-group">
+                        <label for="title">標題：</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">內容：</label>
+                        <textarea id="content" name="content" rows="4" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">提交</button>
+                </form>
+            </div>
+        </div>
+        <!-- 附件上傳表單 -->
+        <div id="attachment-form" class="form-toggle" style="display: none;">
+            <h3>上傳附件</h3>
+            <form method="POST" action="" enctype="multipart/form-data">
+                <input type="hidden" name="attachment_form" value="1">
+                <input type="hidden" id="announcement-id-attachment" name="announcement_id">
 
                 <div class="form-group">
-                    <label for="title">標題：</label>
-                    <input type="text" id="title" name="title" required>
+                    <label for="attachment-name">附件名稱：</label>
+                    <input type="text" id="attachment-name" name="attachment_name" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="content">內容：</label>
-                    <textarea id="content" name="content" rows="4" required></textarea>
+                    <label for="attachment-file">選擇檔案：</label>
+                    <input type="file" id="attachment-file" name="attachment_file" required>
                 </div>
 
                 <button type="submit" class="btn">提交</button>
             </form>
         </div>
-    </div>
-    <!-- 附件上傳表單 -->
-    <div id="attachment-form" class="form-toggle" style="display: none;">
-        <h3>上傳附件</h3>
-        <form method="POST" action="" enctype="multipart/form-data">
-            <input type="hidden" name="attachment_form" value="1">
-            <input type="hidden" id="announcement-id-attachment" name="announcement_id">
-
-            <div class="form-group">
-                <label for="attachment-name">附件名稱：</label>
-                <input type="text" id="attachment-name" name="attachment_name" required>
-            </div>
-
-            <div class="form-group">
-                <label for="attachment-file">選擇檔案：</label>
-                <input type="file" id="attachment-file" name="attachment_file" required>
-            </div>
-
-            <button type="submit" class="btn">提交</button>
-        </form>
-    </div>
 
 
-    <!-- -------------------- 輪播圖管理 -------------------- -->
-    <div class="section">
-        <h2>輪播圖管理</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>輪播圖ID</th>
-                    <th>圖片</th>
-                    <th>說明文字</th>
-                    <th>發布日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($carousels)): ?>
-                    <tr><td colspan="5">目前無輪播圖。</td></tr>
-                <?php else: ?>
-                    <?php foreach ($carousels as $c): ?>
+        <!-- -------------------- 輪播圖管理 -------------------- -->
+        <div class="section">
+            <h2>輪播圖管理</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>輪播圖ID</th>
+                        <th>圖片</th>
+                        <th>說明文字</th>
+                        <th>發布日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($carousels)): ?>
                         <tr>
-                            <td><?= htmlspecialchars($c['CarouselID']) ?></td>
-                            <td>
-                                <?php if (!empty($c['ImagePath'])): ?>
-                                    <img src="<?= htmlspecialchars($c['ImagePath']) ?>" alt="carousel" style="max-width:200px; max-height:100px;">
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($c['Caption']) ?></td>
-                            <td><?= htmlspecialchars($c['PublishDate']) ?></td>
-                            <td>
-                                <button class="btn"
+                            <td colspan="5">目前無輪播圖。</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($carousels as $c): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($c['CarouselID']) ?></td>
+                                <td>
+                                    <?php if (!empty($c['ImagePath'])): ?>
+                                        <img src="<?= htmlspecialchars($c['ImagePath']) ?>" alt="carousel" style="max-width:200px; max-height:100px;">
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($c['Caption']) ?></td>
+                                <td><?= htmlspecialchars($c['PublishDate']) ?></td>
+                                <td>
+                                    <button class="btn"
                                         onclick="toggleCarouselForm(
                                             '<?= htmlspecialchars($c['CarouselID']) ?>',
                                             '<?= htmlspecialchars($c['Caption']) ?>',
                                             '<?= htmlspecialchars($c['ImagePath']) ?>'
                                         )">
-                                    編輯
-                                </button>
-                                <a class="btn" href="?delete_carousel_id=<?= htmlspecialchars($c['CarouselID']) ?>">刪除</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                                        編輯
+                                    </button>
+                                    <a class="btn" href="?delete_carousel_id=<?= htmlspecialchars($c['CarouselID']) ?>">刪除</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
-        <button class="btn" onclick="toggleCarouselForm()">新增輪播圖</button>
+            <button class="btn" onclick="toggleCarouselForm()">新增輪播圖</button>
 
-        <!-- 新增/編輯輪播圖表單 -->
-        <div id="carousel-form" class="form-toggle">
-            <h3>新增/編輯 輪播圖</h3>
-            <form method="POST" action="" enctype="multipart/form-data">
-                <!-- 用於判斷是輪播圖表單 -->
-                <input type="hidden" name="carousel_form" value="1">
-                <input type="hidden" id="carousel-id" name="carousel_id">
+            <!-- 新增/編輯輪播圖表單 -->
+            <div id="carousel-form" class="form-toggle">
+                <h3>新增/編輯 輪播圖</h3>
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <!-- 用於判斷是輪播圖表單 -->
+                    <input type="hidden" name="carousel_form" value="1">
+                    <input type="hidden" id="carousel-id" name="carousel_id">
 
-                <div class="form-group">
-                    <label for="caption">說明文字：</label>
-                    <input type="text" id="caption" name="caption" required>
-                </div>
+                    <div class="form-group">
+                        <label for="caption">說明文字：</label>
+                        <input type="text" id="caption" name="caption" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="image">圖片檔案 (如需更換或新增)：</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
+                    <div class="form-group">
+                        <label for="image">圖片檔案 (如需更換或新增)：</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
 
-                <!-- 顯示舊圖片用的預覽 -->
-                <img id="image-preview" class="img-preview" style="display:none; margin-bottom:10px;" />
+                    <!-- 顯示舊圖片用的預覽 -->
+                    <img id="image-preview" class="img-preview" style="display:none; margin-bottom:10px;" />
 
-                <button type="submit" class="btn">提交</button>
-            </form>
+                    <button type="submit" class="btn">提交</button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- 回首頁按鈕 (可自行調整連結) -->
-    <a href="index.php" class="btn">回首頁</a>
+        <!-- -------------------- 證書上傳區塊 -------------------- -->
+        <div class="section">
+            <h2>上傳參賽證書 PDF</h2>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="upload_certificate_pdf" value="1">
+                <div class="form-group">
+                    <label for="certificate_pdf">選擇證書 PDF 檔案：</label>
+                    <input type="file" name="certificate_pdf" id="certificate_pdf" accept="application/pdf" required>
+                </div>
+                <button type="submit" class="btn">上傳</button>
+            </form>
 
-</div>
+            <!-- 顯示目前上傳的證書 -->
+            <?php
+            $certificatePath = 'uploads/certificates/certificate_template.pdf';
+            if (file_exists(__DIR__ . '/' . $certificatePath)) {
+                echo '
+    <div style="
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 25px;
+        padding: 15px 20px;
+        border: 1px solid #0073e6;
+        border-left: 6px solid #0073e6;
+        border-radius: 6px;
+        background-color: #f0f8ff;
+        max-width: 600px;
+        font-size: 16px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    ">
+        <span style="font-size: 20px;">📎</span>
+        <div>
+            <div style="font-weight: bold; color: #0057b8; margin-bottom: 4px;">目前已上傳證書</div>
+            <a href="' . $certificatePath . '" target="_blank" style="color: #0073e6; text-decoration: underline; font-weight: 500;">
+                certificate_template.pdf
+            </a>
+        </div>
+    </div>';
+            } else {
+                echo '
+    <div style="
+        margin-top: 25px;
+        padding: 15px 20px;
+        border: 1px solid #d9534f;
+        border-left: 6px solid #d9534f;
+        border-radius: 6px;
+        background-color: #fbeaea;
+        max-width: 600px;
+        font-size: 16px;
+    ">
+        <span style="font-weight: bold; color: #c9302c;">❌ 尚未上傳任何證書 PDF</span>
+    </div>';
+            }
+            ?>
+
+
+            <!-- 回首頁按鈕 (可自行調整連結) -->
+            <a href="index.php" class="btn">回首頁</a>
+
+        </div>
 </body>
+
 </html>
