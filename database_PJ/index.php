@@ -20,6 +20,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -193,6 +194,7 @@ try {
         });
     </script>
 </head>
+
 <body>
     <header>
         <div class="logo"> 高大激發學生創意競賽</div>
@@ -201,6 +203,7 @@ try {
         <div class="buttons">
             <a href="signup_form.php">報名</a>
             <a href="login_select.html">登入</a>
+            <a href="cancel_registration.php">取消報名</a>
         </div>
     </header>
 
@@ -238,4 +241,5 @@ try {
         高大激發學生創意競賽第九組 © 2025
     </footer>
 </body>
+
 </html>
