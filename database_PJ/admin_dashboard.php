@@ -213,7 +213,24 @@ try {
 } catch (PDOException $e) {
     die("附件資料操作失敗: " . $e->getMessage());
 }
-
+//------------------ 隊伍管理：讀取所有隊伍 ------------------
+try {
+    $sql_teams = "
+      SELECT TeamID,
+             competition_category,
+             TeamName,
+             RegistrationDate,
+             Rank,
+             TeacherID
+      FROM team
+      ORDER BY RegistrationDate DESC
+    ";
+    $stmt_teams = $pdo->prepare($sql_teams);
+    $stmt_teams->execute();
+    $teams = $stmt_teams->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("讀取隊伍資料失敗: " . $e->getMessage());
+}
 
 ?>
 
@@ -646,6 +663,55 @@ try {
                 <!-- 可登入帳號列表 區塊最底 -->
         <div style="text-align: left; margin-top: 10px;">
         <button class="btn" onclick="location.href='add_user.php'">新增帳號</button>
+        </div>
+    </div>
+        <!-- -------------------- 隊伍管理 -------------------- -->
+    <div class="section">
+        <h2>隊伍管理</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>TeamID</th>
+                    <th>組別</th>
+                    <th>隊伍名稱</th>
+                    <th>報名日期</th>
+                    <th>排名</th>
+                    <th>TeacherID</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($teams)): ?>
+                    <tr><td colspan="7">目前無隊伍資料。</td></tr>
+                <?php else: ?>
+                    <?php foreach ($teams as $t): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($t['TeamID']) ?></td>
+                            <td><?= htmlspecialchars($t['competition_category']) ?></td>
+                            <td><?= htmlspecialchars($t['TeamName']) ?></td>
+                            <td><?= htmlspecialchars($t['RegistrationDate']) ?></td>
+                            <td><?= htmlspecialchars($t['Rank']) ?></td>
+                            <td><?= htmlspecialchars($t['TeacherID']) ?></td>
+                            <td>
+                                <a class="btn"
+                                   href="edit_team.php?id=<?= urlencode($t['TeamID']) ?>">
+                                   編輯
+                                </a>
+                                <a class="btn"
+                                   href="delete_team.php?id=<?= urlencode($t['TeamID']) ?>"
+                                   onclick="return confirm('確定要刪除這個隊伍？');">
+                                   刪除
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+        <!-- 新增隊伍按鈕 -->
+        <div style="text-align: left; margin-top: 10px;">
+            <button class="btn" onclick="location.href='add_team.php'">新增隊伍</button>
         </div>
     </div>
 
