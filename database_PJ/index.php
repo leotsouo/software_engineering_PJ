@@ -208,6 +208,7 @@ try {
         <a href="about.html">關於競賽</a>
         <a href="rule.html">競賽規則</a>
         <a href="rank.php">成績排名</a>
+        <a href="past_projects.php" class="btn">歷屆作品</a>
     </nav>
 
     <div class="carousel">
