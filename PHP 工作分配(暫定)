@@ -1,72 +1,97 @@
-👤 A (陳昱揚)負責：使用者報名與下載流程
-📌 功能：
-✅ submit_form.php（報名參賽）→ 已有，需強化欄位檢查與成功回饋
+👤 A 陳昱揚：使用者功能 + 登出機制 + 部分教師功能
+📌 維持既有職責 + 新增以下任務
 
-🔨 cancel_registration.php（取消報名）→ 新增
+✅ submit_form.php（強化欄位檢查與成功回饋）
 
-✅ confirmation.php（查詢報名資料）→ 已有，補上「可修改」流程
+🔨 cancel_registration.php（新增）
 
-🔨 download_certificate.php（下載電子證書）→ 新增
+✅ confirmation.php（補上可修改流程）
 
-✅ rank.php（查詢得獎名單）→ 已有，加入搜尋條件（如組別、關鍵字）
+🔨 download_certificate.php（新增 + 使用假 PDF）
 
-📎 任務說明：
-確保流程表單有防呆（空值、格式）
+✅ rank.php（加入搜尋條件）
 
-上傳檔案可驗證副檔名與大小（<10MB）
+🔨 新增 logout 功能（全系統通用，導向 login 頁）
 
-證書下載可先用假 PDF 做出範例
+🔨 學生檢視評語功能串接 view_feedback.php（與 B 協作）
 
-導入 $_SESSION 管理登入者身份與限制權限
+🔨 教師檢視學生上傳內容（由 confirmation.php 複製並加教師權限判斷）
 
-👤 B (鄒邱昂)負責：評審後台與評分功能擴充
-📌 功能：
-✅ judge_dashboard.php（修改作品評分）→ 已有，補上留言欄位與送出按鈕
+📎 技術細節任務：
 
-🔨 criteria_manage.php（新增/修改/刪除評分標準）→ 新增
+檔案驗證（副檔名與大小 <10MB）
 
-🔨 加入搜尋功能（作品名稱、年份）於 judge_dashboard.php
+導入 $_SESSION 控制權限
 
-🔨 view_feedback.php（讓學生檢視評審評語）→ 新增
+防呆：空值、格式檢查
 
-✅ 登入功能 login_judge.php → 需補上身份驗證與錯誤訊息
+--------------------------------------------------------------------------------------------
 
-📎 任務說明：
-製作一個評審打分表（含下拉式標準 + 評語欄）
+👤 B 鄒邱昂：評審系統 + 搜尋功能 + 排名管理
+📌 維持既有職責 + 新增以下任務
 
-連接資料表 scores 與 comments
+✅ judge_dashboard.php（加入留言欄位與送出按鈕）
 
-評分送出後需禁止再次修改（LOCK 機制或 flag 欄位）
+🔨 criteria_manage.php（新增、修改、刪除評分標準）
 
-建立 AJAX 的增刪評分標準功能更佳
+🔨 搜尋功能（作品名稱、年份關鍵字搜尋）
 
-👤 C (邱御哲)負責：公告、歷屆作品、系統通知功能
-📌 功能：
-✅ announcement.php（前台公告查看）→ 確保顯示格式美觀
+🔨 view_feedback.php（供學生檢視評語）※與 A 串接資料
 
-✅ manage_announcements.php（後台管理）→ 補上新增/編輯/刪除回饋
+✅ login_judge.php（補上驗證與錯誤處理）
 
-🔨 past_winners.php（歷屆作品查詢）→ 新增
+🔨 評分標準的 AJAX 操作（優化）
 
-🔨 reminder_email.php（報名截止提醒通知）→ 可用排程模擬
+🔨 排名刪除功能（rank 刪除按鈕）
 
-✅ login_admin.php、admin_dashboard.php → 管理功能登入流程檢查
+🔨 評分欄位 lock 機制實作（flag 實作）
 
-📎 任務說明：
-公告可附加檔案（PDF、JPG）
+🔨 學生檢視功能後的資料顯示整合
 
-可加一個「是否發送 Email」 的 checkbox
+📎 技術細節任務：
 
-歷屆作品可使用假資料建立查詢結果表格
+管理 scores 與 comments 表
 
-Email 通知可模擬（或單純寫入 log.txt ）
+評分後鎖定、不可再修改
 
-📦 各自共通工作：
-✅ 整合 db_connection.php 並統一錯誤訊息處理方式
+快速搜尋介面設計（input + AJAX）
 
-✅ 需呼叫 session_start() 控管身分
+--------------------------------------------------------------------------------------------
 
-🔐 頁面前要檢查登入狀態，未登入自動導回 login.php
+👤 C 邱御哲：後台管理 + 公告 + 系統帳號管理與通知
+📌 維持既有職責 + 新增以下任務
 
+✅ announcement.php（確保顯示美觀）
 
-最後導入頁改為index.php
+✅ manage_announcements.php（新增/編輯/刪除 + Email checkbox）
+
+🔨 past_winners.php（歷屆作品查詢頁面 → 移至主頁呈現）
+
+🔨 reminder_email.php（排程提醒報名截止 → 可寫入 log.txt）
+
+✅ login_admin.php、admin_dashboard.php（登入檢查）
+
+🔨 新增、修改、刪除帳號功能（Admin專屬）
+
+🔨 重設密碼功能（含 Email 模擬）
+
+🔨 檢視、修改、刪除隊伍功能
+
+🔨 rank 顯示管理功能（給管理員）
+
+🔨 主頁首頁改版（導入公告 + 歷屆作品區塊）
+
+📎 技術細節任務：
+
+公告可附檔案（PDF, JPG）
+
+登入者身分確認：系統管理員、教師、學生、評審
+
+管理員主控功能整理
+
+✅ 共通任務（每人負責自己負責功能頁面）：
+整合 db_connection.php 與錯誤處理
+
+導入 session_start() 並依角色驗證跳轉
+
+所有功能頁面需加入登入檢查，未登入自動導回 login.php
