@@ -223,6 +223,7 @@ try {
     <div class="announcement">
         <h2>最新公告</h2>
         <ul>
+            <li><a href="past_works.php">歷屆作品</a></li>
             <?php if (empty($announcements)): ?>
                 <li>目前無公告。</li>
             <?php else: ?>
