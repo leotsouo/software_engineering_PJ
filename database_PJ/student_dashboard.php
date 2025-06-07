@@ -154,9 +154,10 @@ try {
         header {
             background-color: #0057b8;
             color: white;
-            padding: 15px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .container {
@@ -228,6 +229,20 @@ try {
             font-weight: bold;
             margin-bottom: 20px;
         }
+
+        /* ✅ 登出按鈕樣式與定位 */
+        .logout-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
     <script>
         function checkFileSize(input) {
@@ -243,7 +258,10 @@ try {
 <body>
     <header>
         <div>歡迎，<?= htmlspecialchars($student['Name']) ?>！</div>
+        <a href="index.php" class="logout-btn">登出</a>
     </header>
+
+
     <div class="container">
         <h2>所屬隊伍</h2>
         <?php if ($team): ?>
@@ -278,27 +296,15 @@ try {
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="submit_submission" value="1">
                 <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"></textarea></div>
-                <div class="form-group">
-                    <label>海報檔案（請上傳小於 10MB）：</label>
-                    <input type="file" name="poster_file" accept=".jpg,.jpeg,.png,.pdf" required onchange="checkFileSize(this)">
-                </div>
-
-                <div class="form-group">
-                    <label>影片檔案（請上傳小於 10MB）：</label>
-                    <input type="file" name="video_file" accept="video/*" required onchange="checkFileSize(this)">
-                </div>
-
-                <div class="form-group">
-                    <label>程式碼壓縮檔（請上傳小於 10MB）：</label>
-                    <input type="file" name="code_file" accept=".zip,.rar,.7z" required onchange="checkFileSize(this)">
-                </div>
-
+                <div class="form-group"><label>海報檔案（請上傳小於 10MB）：</label><input type="file" name="poster_file" accept=".jpg,.jpeg,.png,.pdf" required onchange="checkFileSize(this)"></div>
+                <div class="form-group"><label>影片檔案（請上傳小於 10MB）：</label><input type="file" name="video_file" accept="video/*" required onchange="checkFileSize(this)"></div>
+                <div class="form-group"><label>程式碼壓縮檔（請上傳小於 10MB）：</label><input type="file" name="code_file" accept=".zip,.rar,.7z" required onchange="checkFileSize(this)"></div>
+                <button type="submit" class="btn">提交作品</button>
             </form>
         <?php else: ?>
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_submission" value="1">
                 <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"><?= htmlspecialchars($submission['Description']) ?></textarea></div>
-                <!-- ✅ 新增這段 -->
                 <div class="form-group">
                     <label>已上傳檔案：</label>
                     <ul>
@@ -324,8 +330,6 @@ try {
                 <button type="submit" class="btn" style="background-color: #d9534f;">刪除作品</button>
             </form>
         <?php endif; ?>
-
-        <a href="index.php" class="btn">回首頁</a>
     </div>
 </body>
 
