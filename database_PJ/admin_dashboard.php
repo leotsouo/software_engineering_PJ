@@ -618,11 +618,11 @@ try {
                         <td><?= htmlspecialchars($s['Name']) ?></td>
                         <td>
                             <a class="btn"
-                                href="edit_student.php?id=<?= urlencode($t['StudentID']) ?>">
+                                href="edit_student.php?id=<?= urlencode($s['StudentID']) ?>">
                                 編輯
                             </a>
                             <a class="btn"
-                                href="delete_student.php?id=<?= urlencode($t['StudentID']) ?>"
+                                href="delete_student.php?id=<?= urlencode($s['StudentID']) ?>"
                                 onclick="return confirm('確定要刪除此學生？');">
                                 刪除
                             </a>
@@ -647,11 +647,11 @@ try {
                         <td><?= htmlspecialchars($j['Name']) ?></td>
                         <td>
                             <a class="btn"
-                                href="edit_judge.php?id=<?= urlencode($t['JudgeID']) ?>">
+                                href="edit_judge.php?id=<?= urlencode($j['JudgeID']) ?>">
                                 編輯
                             </a>
                             <a class="btn"
-                                href="delete_judge.php?id=<?= urlencode($t['JudgeID']) ?>"
+                                href="delete_judge.php?id=<?= urlencode($j['JudgeID']) ?>"
                                 onclick="return confirm('確定要刪除此評審？');">
                                 刪除
                             </a>

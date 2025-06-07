@@ -92,7 +92,7 @@ try {
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <a href="index.php"><button type="button">回首頁</button></a>
+                <button type="button" onclick="history.back()">回上一頁</button>
                 <button type="button" onclick="nextStep()">下一步</button>
             </div>
 
