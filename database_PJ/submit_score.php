@@ -19,6 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("資料不完整，請回上一頁檢查。");
     }
 
+    // ✅ 後端鎖定檢查：確認是否已評過
+    $check_stmt = $pdo->prepare("SELECT 1 FROM score WHERE JudgeID = :judge AND TeamID = :team");
+    $check_stmt->execute(['judge' => $judge_id, 'team' => $team_id]);
+    if ($check_stmt->fetch()) {
+        // 若已存在紀錄，導回並提示錯誤
+        header("Location: judge_dashboard.php?error=already_scored");
+        exit();
+    }
+
     // 計算平均分數
     $score_values = array_map('intval', $scores);
     $average = round(array_sum($score_values) / count($score_values));
@@ -35,8 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'comment' => $comment
         ]);
 
-        // 回到評審主頁
-        header("Location: judge_dashboard.php");
+        header("Location: judge_dashboard.php?success=1");
         exit;
     } catch (PDOException $e) {
         die("評分寫入失敗: " . $e->getMessage());

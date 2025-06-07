@@ -162,6 +162,20 @@ try {
         <div class="welcome">
             歡迎，<?= htmlspecialchars($student['Name']) ?>！
         </div>
+        <div style="text-align: center; margin-top: 20px;">
+        <a href="view_feedback.php" class="btn" style="
+            background-color: #0073e6;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            display: inline-block;
+        ">
+            查看我的評語與分數
+        </a>
+    </div>
+
     </header>
     <div class="container">
         <h2>所屬隊伍</h2>
@@ -217,8 +231,21 @@ try {
             <button type="submit" name="submit_submission" class="btn">提交</button>
         </form>
 
-        <!-- 回首頁按鈕 -->
-        <a href="index.php" class="btn">回首頁</a>
+        <!-- 登出並回首頁 -->
+        <form action="logout.php" method="POST" style="display:inline;">
+            <button type="submit" class="btn" style="
+                background-color: #d9534f;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+            ">
+                登出回首頁
+            </button>
+        </form>
+
     </div>
 </body>
 </html>

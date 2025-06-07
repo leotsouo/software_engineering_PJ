@@ -389,6 +389,11 @@ function showSection(section) {
     background-color: rgba(0,0,0,0.4);
     z-index: 9998;
 " onclick="closeModal()"></div>
+<?php if (isset($_GET['error']) && $_GET['error'] === 'already_scored'): ?>
+    <script>
+        alert("⚠️ 此隊伍已經評分，無法再次提交！");
+    </script>
+<?php endif; ?>
 
 </body>
 </html>
