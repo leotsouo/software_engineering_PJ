@@ -330,6 +330,16 @@ try {
                 <button type="submit" class="btn" style="background-color: #d9534f;">刪除作品</button>
             </form>
         <?php endif; ?>
+
+        <?php if ($team && $submission): ?>
+            <hr>
+            <h2>下載參賽證書</h2>
+            <form action="download_certificate.php" method="POST" target="_blank">
+                <input type="hidden" name="team_name" value="<?= htmlspecialchars($team['TeamName']) ?>">
+                <p>您的參賽證書已準備好，點擊下方按鈕即可下載：</p>
+                <button type="submit" class="btn">🎓 下載參賽證書</button>
+            </form>
+        <?php endif; ?>
     </div>
 </body>
 
