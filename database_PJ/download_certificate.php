@@ -1,104 +1,47 @@
 <?php
 require_once 'db_connection.php';
+session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $team_name = trim($_POST['team_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+// 檢查是否已登入學生
+if (!isset($_SESSION['student_id'])) {
+    echo "請先登入學生帳號再下載證書。";
+    exit;
+}
 
-    $sql = "SELECT t.TeamID 
-            FROM team t
-            JOIN teammember m ON t.TeamID = m.TeamID 
-            WHERE t.TeamName = ? AND m.Email = ?";
+// 拿到來自表單的隊伍名稱
+$team_name = $_POST['team_name'] ?? '';
+
+if (!$team_name) {
+    echo "❌ 未提供隊伍名稱。";
+    exit;
+}
+
+try {
+    // 查詢該學生是否真的屬於這個隊伍
+    $sql = "SELECT tm.TeamID FROM teammember tm
+            JOIN team t ON tm.TeamID = t.TeamID
+            WHERE tm.StudentID = :student_id AND t.TeamName = :team_name";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$team_name, $email]);
-    $record = $stmt->fetch();
+    $stmt->execute([
+        ':student_id' => $_SESSION['student_id'],
+        ':team_name' => $team_name
+    ]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($record) {
-        // 修正路徑與檔名
-        $file_path = __DIR__ . '/uploads/certificates/certificate_template.pdf';
-        if (file_exists($file_path)) {
+    if ($result) {
+        $file = __DIR__ . '/uploads/certificates/certificate_template.pdf';
+        if (file_exists($file)) {
             header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="certificate.pdf"');
-            readfile($file_path);
+            header('Content-Disposition: attachment; filename="certificate_' . urlencode($team_name) . '.pdf"');
+            header('Content-Length: ' . filesize($file));
+            readfile($file);
             exit;
         } else {
-            $error = "❌ 證書尚未上傳";
+            echo "❌ 證書檔案不存在，請聯絡主辦單位。";
         }
     } else {
-        $error = "❌ 查無此隊伍與 Email 的對應資料";
+        echo "⚠️ 您無法下載此隊伍的證書。";
     }
+} catch (PDOException $e) {
+    echo "資料庫錯誤：" . $e->getMessage();
 }
-?>
-
-<!DOCTYPE html>
-<html lang="zh-Hant">
-
-<head>
-    <meta charset="UTF-8">
-    <title>下載參賽證書</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 40px;
-            background-color: #eef3fa;
-        }
-
-        .form-container {
-            background: white;
-            max-width: 400px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #aaa;
-        }
-
-        h2 {
-            text-align: center;
-            color: #0073e6;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .error {
-            color: red;
-            text-align: center;
-        }
-
-        .btn-back {
-            display: block;
-            margin: 15px auto 0;
-            text-align: center;
-            text-decoration: none;
-            color: #0073e6;
-            font-weight: bold;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="form-container">
-        <h2>下載參賽證書</h2>
-        <?php if (!empty($error)) echo "<div class='error'>$error</div>"; ?>
-        <form method="post">
-            <input type="text" name="team_name" placeholder="輸入隊伍名稱" required>
-            <input type="email" name="email" placeholder="輸入參賽者 Email" required>
-            <button type="submit">下載證書</button>
-        </form>
-        <a href="index.php" class="btn-back">回首頁</a>
-    </div>
-</body>
-
-</html>
