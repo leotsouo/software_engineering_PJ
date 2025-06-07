@@ -1,117 +1,42 @@
 <?php
 require_once 'db_connection.php';
+session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $team_name = trim($_POST['team_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+if (!isset($_SESSION['student_id'])) {
+    header("Location: login_student.php");
+    exit;
+}
 
-    $sql = "SELECT t.TeamID 
-            FROM team t
-            JOIN teammember m ON t.TeamID = m.TeamID 
-            WHERE t.TeamName = ? AND m.Email = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$team_name, $email]);
-    $team = $stmt->fetch();
+$student_id = $_SESSION['student_id'];
+
+try {
+    // 找出隊伍 ID
+    $sql_team = "SELECT TeamID FROM teammember WHERE StudentID = :student_id";
+    $stmt_team = $pdo->prepare($sql_team);
+    $stmt_team->bindParam(':student_id', $student_id);
+    $stmt_team->execute();
+    $team = $stmt_team->fetch(PDO::FETCH_ASSOC);
 
     if ($team) {
-        // 刪除該隊伍所有成員
-        $sql1 = "DELETE FROM teammember WHERE TeamID = ?";
-        $stmt1 = $pdo->prepare($sql1);
-        $stmt1->execute([$team['TeamID']]);
+        $team_id = $team['TeamID'];
 
-        // 刪除隊伍資料
-        $sql2 = "DELETE FROM team WHERE TeamID = ?";
-        $stmt2 = $pdo->prepare($sql2);
-        $stmt2->execute([$team['TeamID']]);
+        // 刪除 submission（如果有）
+        $stmt_delete_submission = $pdo->prepare("DELETE FROM submission WHERE TeamID = :team_id");
+        $stmt_delete_submission->execute([':team_id' => $team_id]);
 
-        $success = "✅ 已成功取消報名並刪除隊伍資料。";
-    } else {
-        $error = "❌ 查無此隊伍與 Email 的對應資料。";
+        // 刪除 teammember
+        $stmt_delete_member = $pdo->prepare("DELETE FROM teammember WHERE TeamID = :team_id");
+        $stmt_delete_member->execute([':team_id' => $team_id]);
+
+        // 刪除 team
+        $stmt_delete_team = $pdo->prepare("DELETE FROM team WHERE TeamID = :team_id");
+        $stmt_delete_team->execute([':team_id' => $team_id]);
     }
+
+    // ✅ 清除 session 並導回首頁
+    unset($_SESSION['student_id']);
+    header("Location: index.php");
+    exit;
+} catch (PDOException $e) {
+    echo "取消報名錯誤：" . $e->getMessage();
 }
-?>
-
-<!DOCTYPE html>
-<html lang="zh-Hant">
-
-<head>
-    <meta charset="UTF-8">
-    <title>取消報名</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            padding: 50px;
-        }
-
-        .form-container {
-            background: white;
-            max-width: 420px;
-            margin: auto;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-            color: #4CAF50;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 12px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 15px;
-        }
-
-        .message {
-            text-align: center;
-            font-weight: bold;
-            color: red;
-            margin-bottom: 10px;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .back-btn {
-            display: block;
-            margin-top: 15px;
-            text-align: center;
-            text-decoration: none;
-            color: #0073e6;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="form-container">
-        <h2>取消報名</h2>
-
-        <?php if (!empty($error)) echo "<div class='message'>$error</div>"; ?>
-        <?php if (!empty($success)) echo "<div class='message success'>$success</div>"; ?>
-
-        <form method="post">
-            <input type="text" name="team_name" placeholder="輸入隊伍名稱" required>
-            <input type="email" name="email" placeholder="輸入報名者 Email" required>
-            <button type="submit">確認取消報名</button>
-        </form>
-
-        <a href="index.php" class="back-btn">← 返回首頁</a>
-    </div>
-</body>
-
-</html>
