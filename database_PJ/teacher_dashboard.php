@@ -109,6 +109,24 @@ try {
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
 
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background-color: #0056b3;
+        }
+
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -156,6 +174,7 @@ try {
 </head>
 
 <body>
+    <a href="index.php" class="logout-btn">登出</a>
     <header>
         <h1>教師主頁面</h1>
     </header>
@@ -237,8 +256,6 @@ try {
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
-        <!-- 回首頁按鈕 -->
-        <a href="index.php" class="btn">回首頁</a>
     </div>
 </body>
 
