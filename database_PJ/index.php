@@ -211,7 +211,6 @@ try {
         <a href="about.html">關於競賽</a>
         <a href="rule.html">競賽規則</a>
         <a href="rank.php">成績排名</a>
-        <a href="download_certificate.php">證書下載</a>
     </nav>
 
     <div class="carousel">
