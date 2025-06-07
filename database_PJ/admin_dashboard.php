@@ -388,6 +388,23 @@ try {
             max-height: 120px;
             object-fit: cover;
         }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
     <script>
         // 切換 公告表單
@@ -437,7 +454,7 @@ try {
 </head>
 
 <body>
-
+    <a href="index.php" class="logout-btn">登出</a>
     <header>
         <h1>後台管理頁面</h1>
         <p>歡迎，<?= htmlspecialchars($admin_name) ?>！</p>
@@ -673,9 +690,6 @@ try {
             }
             ?>
 
-
-            <!-- 回首頁按鈕 (可自行調整連結) -->
-            <a href="index.php" class="btn">回首頁</a>
 
         </div>
 </body>
