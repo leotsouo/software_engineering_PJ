@@ -1,241 +1,113 @@
 <?php
-require_once 'db_connection.php'; // 引入資料庫連接文件
+session_start();
+require_once 'db_connection.php';
 
-try {
-    // 獲取輪播圖資料
-    $sql_carousel = "SELECT ImagePath, Caption FROM carousel ORDER BY PublishDate DESC";
-    $stmt_carousel = $pdo->prepare($sql_carousel);
-    $stmt_carousel->execute();
-    $carousels = $stmt_carousel->fetchAll(PDO::FETCH_ASSOC);
-
-    // 獲取公告資料
-    $sql_announcements = "SELECT AnnouncementID, Title, Content, PublishDate FROM announcement ORDER BY PublishDate DESC";
-    $stmt_announcements = $pdo->prepare($sql_announcements);
-    $stmt_announcements->execute();
-    $announcements = $stmt_announcements->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("資料獲取失敗: " . $e->getMessage());
+// 檢查是否登入且為評審
+if (!isset($_SESSION['judge_id'])) {
+    header("Location: login_judge.php");
+    exit();
 }
+
+$judge_name = $_SESSION['judge_name'];
+
+// 取得隊伍資料
+$sql = "SELECT team_id, team_name, group_name FROM teams";
+$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>創意競賽管理系統</title>
+    <title>評審主頁面</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        /* 樣式與之前一致 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #eef3fa;
-            color: #333;
+            background-color: #e9f0f7;
         }
-
-        header {
-            background-color: #0057b8;
-            color: white;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .container {
+            margin-top: 30px;
         }
-
-        header .logo {
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
+        .section {
+            display: none;
         }
-
-        header .buttons {
-            display: flex;
-            gap: 20px;
-        }
-
-        header .buttons a {
-            text-decoration: none;
-            color: white;
-            background-color: #0073e6;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-        }
-
-        header .buttons a:hover {
-            background-color: #004a99;
-            transform: scale(1.05);
-        }
-
-        nav {
-            background-color: #0073e6;
-            color: white;
-            display: flex;
-            justify-content: center;
-            padding: 15px 0;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 30px;
-            font-size: 18px;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-
-        nav a:hover {
-            color: #cce7ff;
-        }
-
-        .carousel {
-            position: relative;
-            width: 100%;
-            height: 60vh;
-            margin: 0 auto;
-            overflow: hidden;
-            border-radius: 0;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .carousel img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 100%;
-            opacity: 0;
-            transition: all 0.7s ease;
-        }
-
-        .carousel img.active {
-            left: 0;
-            opacity: 1;
-        }
-
-        .carousel img.previous {
-            left: -100%;
-        }
-
-        .announcement {
-            max-width: 1200px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .announcement h2 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #0057b8;
-            border-left: 6px solid #0073e6;
-            padding-left: 15px;
-        }
-
-        .announcement ul {
-            list-style: none;
-            padding-left: 15px;
-        }
-
-        .announcement ul li {
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .announcement ul li span {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .announcement ul li a {
-            text-decoration: none;
-            color: #0057b8;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-
-        .announcement ul li a:hover {
-            color: #0073e6;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #004a99;
-            color: white;
-            font-size: 16px;
+        .section.active {
+            display: block;
         }
     </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const images = document.querySelectorAll('.carousel img');
-            let currentIndex = 0;
-
-            function switchImage() {
-                images[currentIndex].classList.remove('active');
-                currentIndex = (currentIndex + 1) % images.length;
-                images[currentIndex].classList.add('active');
-            }
-
-            setInterval(switchImage, 3000);
-        });
-    </script>
 </head>
 <body>
-    <header>
-        <div class="logo"> 高大激發學生創意競賽</div>
-
-
-        <div class="buttons">
-            <a href="signup_form.php">報名</a>
-            <a href="login_select.html">登入</a>
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="text-white bg-primary py-2 rounded">評審主頁面</h2>
+            <p>歡迎，<?php echo htmlspecialchars($judge_name); ?>！</p>
         </div>
-    </header>
 
-    <nav>
-        <a href="about.html">關於競賽</a>
-        <a href="rule.html">競賽規則</a>
-        <a href="rank.php">成績排名</a>
-    </nav>
+        <!-- 切換按鈕 -->
+        <div class="btn-group mb-4">
+            <button class="btn btn-primary" onclick="showSection('teams')">隊伍列表</button>
+            <button class="btn btn-primary" onclick="showSection('addScore')">新增評分</button>
+        </div>
 
-    <div class="carousel">
-        <?php foreach ($carousels as $carousel): ?>
-            <img src="<?= htmlspecialchars($carousel['ImagePath']) ?>" alt="<?= htmlspecialchars($carousel['Caption']) ?>" class="<?= $carousel === reset($carousels) ? 'active' : '' ?>">
-        <?php endforeach; ?>
+        <!-- 隊伍列表 -->
+        <div id="section-teams" class="section active card p-3">
+            <h5 class="mb-3">隊伍列表</h5>
+            <table class="table table-striped table-bordered">
+                <thead class="table-primary">
+                    <tr>
+                        <th>隊伍 ID</th>
+                        <th>隊伍名稱</th>
+                        <th>競賽組別</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()) : ?>
+                        <tr>
+                            <td><?php echo $row['team_id']; ?></td>
+                            <td><?php echo htmlspecialchars($row['team_name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['group_name']); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 新增評分 -->
+        <div id="section-addScore" class="section card p-3">
+            <h5 class="mb-3">新增評分</h5>
+            <form method="POST" action="submit_score.php">
+                <div class="mb-3">
+                    <label for="team_id" class="form-label">選擇隊伍：</label>
+                    <select name="team_id" id="team_id" class="form-select" required>
+                        <option value="" disabled selected>請選擇隊伍</option>
+                        <?php
+                        // 再抓一次隊伍名稱給下拉選單
+                        $result2 = $conn->query($sql);
+                        while ($row = $result2->fetch_assoc()) {
+                            echo "<option value=\"{$row['team_id']}\">{$row['team_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="score" class="form-label">評分：</label>
+                    <input type="number" name="score" id="score" class="form-control" min="0" max="100" required>
+                </div>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">評論：</label>
+                    <textarea name="comment" id="comment" rows="4" class="form-control" required></textarea>
+                </div>
+                <input type="submit" value="提交評分" class="btn btn-primary">
+            </form>
+        </div>
     </div>
 
-    <div class="announcement">
-        <h2>最新公告</h2>
-        <ul>
-            <?php if (empty($announcements)): ?>
-                <li>目前無公告。</li>
-            <?php else: ?>
-                <?php foreach ($announcements as $announcement): ?>
-                    <li>
-                        <a href="Announcement.php?id=<?= htmlspecialchars($announcement['AnnouncementID']) ?>">
-                            <?= htmlspecialchars($announcement['Title']) ?>
-                        </a>
-                        <span> (發佈日期: <?= htmlspecialchars($announcement['PublishDate']) ?>)</span>
-                    </li>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </ul>
-    </div>
-
-    <footer>
-        高大激發學生創意競賽第九組 © 2025
-    </footer>
+    <!-- 區塊切換 JS -->
+    <script>
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById('section-' + section).classList.add('active');
+        }
+    </script>
 </body>
 </html>

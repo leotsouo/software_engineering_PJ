@@ -15,6 +15,44 @@ $admin_name = $_SESSION['admin_name'];
 
 // 用來存放「公告管理」或「輪播圖管理」的操作後訊息
 $message = '';
+// ------------------ 評分標準管理：新增與刪除 ------------------
+try {
+    // 撈出全部標準供刪除用
+    $stmt_criteria_all = $pdo->query("SELECT * FROM criteria ORDER BY id ASC");
+    $criteria_all = $stmt_criteria_all->fetchAll(PDO::FETCH_ASSOC);
+
+    // 新增評分標準
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criteria_form'])) {
+        $new_criteria = trim($_POST['criteria_name']);
+        if (!empty($new_criteria)) {
+            $stmt = $pdo->prepare("INSERT INTO criteria (name) VALUES (:name)");
+            $stmt->bindParam(':name', $new_criteria);
+            $stmt->execute();
+            $message = "✅ 評分標準已成功新增！";
+        } else {
+            $message = "⚠️ 請輸入評分標準名稱。";
+        }
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
+    // 刪除評分標準
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_criteria_form'])) {
+        $delete_id = $_POST['criteria_id'] ?? '';
+        if (!empty($delete_id)) {
+            $stmt = $pdo->prepare("DELETE FROM criteria WHERE id = :id");
+            $stmt->bindParam(':id', $delete_id);
+            $stmt->execute();
+            $message = "🗑️ 評分標準已成功刪除！";
+        } else {
+            $message = "⚠️ 請選擇要刪除的標準。";
+        }
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    }
+} catch (PDOException $e) {
+    die("評分標準管理失敗: " . $e->getMessage());
+}
 
 // ------------------ 公告管理：新增、編輯、刪除 ------------------
 try {
@@ -499,6 +537,37 @@ try {
             <button type="submit" class="btn">提交</button>
         </form>
     </div>
+
+    <!-- -------------------- 評分標準管理 -------------------- -->
+    <div class="section">
+        <h2>評分標準管理</h2>
+
+        <!-- 新增 -->
+        <form method="POST" action="" style="margin-bottom: 20px;">
+            <input type="hidden" name="criteria_form" value="1">
+            <div class="form-group">
+                <label for="criteria-name">新增評審評分標準(例如:創意、可行性、簡報表現...等等):</label>
+                <input type="text" id="criteria-name" name="criteria_name" required>
+            </div>
+            <button type="submit" class="btn">新增</button>
+        </form>
+
+        <!-- 刪除 -->
+        <form method="POST" action="">
+            <input type="hidden" name="delete_criteria_form" value="1">
+            <div class="form-group">
+                <label for="criteria-id">刪除評分標準：</label>
+                <select name="criteria_id" id="criteria-id" required>
+                    <option value="">請選擇</option>
+                    <?php foreach ($criteria_all as $c): ?>
+                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button type="submit" class="btn" style="background-color: #d9534f;">刪除</button>
+        </form>
+    </div>
+
 
 
     <!-- -------------------- 輪播圖管理 -------------------- -->
