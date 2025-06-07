@@ -26,54 +26,6 @@ try {
     $stmt_announcements->execute();
     $announcements = $stmt_announcements->fetchAll(PDO::FETCH_ASSOC);
 
-    // 2. 新增或更新公告
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['announcement_form'])) {
-        $title = $_POST['title'];
-        $content = $_POST['content'];
-
-        if (isset($_POST['announcement_id']) && !empty($_POST['announcement_id'])) {
-            // 更新公告
-            $announcement_id = $_POST['announcement_id'];
-            $sql_update = "UPDATE announcement
-                           SET Title = :title,
-                               Content = :content,
-                               PublishDate = NOW()
-                           WHERE AnnouncementID = :id";
-            $stmt_update = $pdo->prepare($sql_update);
-            $stmt_update->bindParam(':title', $title, PDO::PARAM_STR);
-            $stmt_update->bindParam(':content', $content, PDO::PARAM_STR);
-            $stmt_update->bindParam(':id', $announcement_id, PDO::PARAM_INT);
-            $stmt_update->execute();
-            $message = "公告已成功更新！";
-        } else {
-            // 新增公告
-            $sql_insert = "INSERT INTO announcement (Title, Content, PublishDate)
-                           VALUES (:title, :content, NOW())";
-            $stmt_insert = $pdo->prepare($sql_insert);
-            $stmt_insert->bindParam(':title', $title, PDO::PARAM_STR);
-            $stmt_insert->bindParam(':content', $content, PDO::PARAM_STR);
-            $stmt_insert->execute();
-            $message = "公告已成功新增！";
-        }
-
-        // 自動刷新頁面
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    // 3. 刪除公告
-    if (isset($_GET['delete_announcement_id']) && !empty($_GET['delete_announcement_id'])) {
-        $delete_id = $_GET['delete_announcement_id'];
-        $sql_delete = "DELETE FROM announcement WHERE AnnouncementID = :id";
-        $stmt_delete = $pdo->prepare($sql_delete);
-        $stmt_delete->bindParam(':id', $delete_id, PDO::PARAM_INT);
-        $stmt_delete->execute();
-        $message = "公告已成功刪除！";
-
-        // 自動刷新頁面
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
 } catch (PDOException $e) {
     die("公告資料獲取失敗: " . $e->getMessage());
 }
@@ -190,6 +142,29 @@ try {
     }
 } catch (PDOException $e) {
     die("輪播圖資料獲取失敗: " . $e->getMessage());
+}
+
+//------------------ 帳號管理：新增、編輯、刪除 ------------------
+try {
+    // 教師
+    $sql_teachers = "SELECT TeacherID, Name FROM teacher ORDER BY TeacherID ASC";
+    $stmt_teachers = $pdo->prepare($sql_teachers);
+    $stmt_teachers->execute();
+    $teachers = $stmt_teachers->fetchAll(PDO::FETCH_ASSOC);
+
+    // 學生 (隊員)
+    $sql_students = "SELECT StudentID, Name FROM teammember ORDER BY StudentID ASC";
+    $stmt_students = $pdo->prepare($sql_students);
+    $stmt_students->execute();
+    $students = $stmt_students->fetchAll(PDO::FETCH_ASSOC);
+
+    // 評審
+    $sql_judges = "SELECT JudgeID, Name FROM judge ORDER BY JudgeID ASC";
+    $stmt_judges = $pdo->prepare($sql_judges);
+    $stmt_judges->execute();
+    $judges = $stmt_judges->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("讀取可登入帳號失敗: " . $e->getMessage());
 }
 
 // ------------------ 附件上傳管理 ------------------
@@ -435,14 +410,15 @@ try {
                             <td><?= htmlspecialchars($announcement['PublishDate']) ?></td>
                             <td>
                                 <button class="btn"
-                                        onclick="toggleAnnouncementForm(
-                                            '<?= htmlspecialchars($announcement['AnnouncementID']) ?>',
-                                            '<?= htmlspecialchars($announcement['Title']) ?>',
-                                            '<?= htmlspecialchars($announcement['Content']) ?>'
-                                        )">
+                                    type="button"
+                                    onclick="location.href='edit_announcement.php?id=<?= urlencode($announcement['AnnouncementID']) ?>'">
                                     編輯
                                 </button>
-                                <a class="btn" href="?delete_announcement_id=<?= htmlspecialchars($announcement['AnnouncementID']) ?>">刪除</a>
+                                <a class="btn"
+                                    href="delete_announcement.php?id=<?= urlencode($announcement['AnnouncementID']) ?>"
+                                    onclick="return confirm('確定要刪除此公告？');">
+                                    刪除
+                                </a>
                                 <!--新增上傳附件功能!---點了上傳附件按鈕之後取得對應的AnnouncementID,跳出上傳附件的區塊讓用戶輸入的資料存到table:attachment-->
                                 <button class="btn"
                                     onclick="toggleAttachmentForm('<?= htmlspecialchars($announcement['AnnouncementID']) ?>')">
@@ -455,7 +431,7 @@ try {
             </tbody>
         </table>
 
-        <button class="btn" onclick="toggleAnnouncementForm()">新增公告</button>
+        <a class="btn" href="add_announcement.php">新增公告</a>
 
         <!-- 新增/編輯公告表單 -->
         <div id="announcement-form" class="form-toggle">
@@ -537,7 +513,11 @@ try {
                                         )">
                                     編輯
                                 </button>
-                                <a class="btn" href="?delete_carousel_id=<?= htmlspecialchars($c['CarouselID']) ?>">刪除</a>
+                                <a class="btn"
+                                         href="?delete_carousel_id=<?= htmlspecialchars($c['CarouselID']) ?>"
+                                         onclick="return confirm('確定要刪除這張輪播圖？');">
+                                    刪除
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -570,6 +550,102 @@ try {
 
                 <button type="submit" class="btn">提交</button>
             </form>
+        </div>
+    </div>
+     <!-- -------------------- 帳號管理 -------------------- -->
+    <!-- -------------------- 可登入帳號列表 -------------------- -->
+    <div class="section">
+        <h2>可登入帳號列表</h2>
+
+        <!-- 教師帳號 -->
+        <h3>教師</h3>
+        <table>
+            <thead>
+                <tr><th>TeacherID</th><th>Name</th><th>操作</th>
+            </thead>
+            <tbody>
+                <?php if (empty($teachers)): ?>
+                    <tr><td colspan="2">無教師帳號</td></tr>
+                <?php else: foreach ($teachers as $t): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($t['TeacherID']) ?></td>
+                        <td><?= htmlspecialchars($t['Name']) ?></td>
+                        <td>
+                            <a class="btn"
+                                href="edit_teacher.php?id=<?= urlencode($t['TeacherID']) ?>">
+                                編輯
+                            </a>
+                            <a class="btn"
+                                href="delete_teacher.php?id=<?= urlencode($t['TeacherID']) ?>"
+                                onclick="return confirm('確定要刪除此教師？');">
+                                刪除
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+            </tbody>
+        </table>
+
+        <!-- 學生帳號 -->
+        <h3>學生</h3>
+        <table>
+            <thead>
+                <tr><th>StudentID</th><th>Name</th><th>操作</th>
+            </thead>
+            <tbody>
+                <?php if (empty($students)): ?>
+                    <tr><td colspan="2">無學生帳號</td></tr>
+                <?php else: foreach ($students as $s): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($s['StudentID']) ?></td>
+                        <td><?= htmlspecialchars($s['Name']) ?></td>
+                        <td>
+                            <a class="btn"
+                                href="edit_student.php?id=<?= urlencode($t['StudentID']) ?>">
+                                編輯
+                            </a>
+                            <a class="btn"
+                                href="delete_student.php?id=<?= urlencode($t['StudentID']) ?>"
+                                onclick="return confirm('確定要刪除此學生？');">
+                                刪除
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+            </tbody>
+        </table>
+
+        <!-- 評審帳號 -->
+        <h3>評審</h3>
+        <table>
+            <thead>
+                <tr><th>JudgeID</th><th>Name</th><th>操作</th>
+            </thead>
+            <tbody>
+                <?php if (empty($judges)): ?>
+                    <tr><td colspan="2">無評審帳號</td></tr>
+                <?php else: foreach ($judges as $j): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($j['JudgeID']) ?></td>
+                        <td><?= htmlspecialchars($j['Name']) ?></td>
+                        <td>
+                            <a class="btn"
+                                href="edit_judge.php?id=<?= urlencode($t['JudgeID']) ?>">
+                                編輯
+                            </a>
+                            <a class="btn"
+                                href="delete_judge.php?id=<?= urlencode($t['JudgeID']) ?>"
+                                onclick="return confirm('確定要刪除此評審？');">
+                                刪除
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+            </tbody>
+        </table>
+                <!-- 可登入帳號列表 區塊最底 -->
+        <div style="text-align: left; margin-top: 10px;">
+        <button class="btn" onclick="location.href='add_user.php'">新增帳號</button>
         </div>
     </div>
 
