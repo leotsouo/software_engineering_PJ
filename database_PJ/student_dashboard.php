@@ -243,7 +243,34 @@ try {
         .logout-btn:hover {
             background-color: #0056b3;
         }
+
+
+        .button-group {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .button-group .btn {
+            margin: 0 8px 10px 0;
+            padding: 10px 18px;
+            font-size: 15px;
+            border-radius: 8px;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button-group .btn:hover {
+            background-color: #004a99;
+        }
+
+        .action-section {
+            display: none;
+            margin-top: 20px;
+        }
     </style>
+
     <script>
         function checkFileSize(input) {
             const maxSize = 10 * 1024 * 1024;
@@ -257,7 +284,7 @@ try {
 
 <body>
     <header>
-        <div>歡迎，<?= htmlspecialchars($student['Name']) ?>！</div>
+        <div>歡迎，<?= isset($student['Name']) ? htmlspecialchars($student['Name']) : '學生' ?>！</div>
         <a href="index.php" class="logout-btn">登出</a>
     </header>
 
@@ -289,10 +316,22 @@ try {
             </table>
         <?php else: ?><p>尚未加入任何隊伍。</p><?php endif; ?>
 
-        <h2>作品提交區</h2>
-        <?php if (!empty($message)): ?><p class="message"><?= htmlspecialchars($message) ?></p><?php endif; ?>
+        <h2>操作區</h2>
+        <div class="button-group">
+            <button class="btn" onclick="toggleSection('submission')">📤 作品提交</button>
+            <button class="btn" onclick="toggleSection('update')">✏️ 更新作品</button>
+            <button class="btn" onclick="toggleSection('delete')">🗑️ 刪除作品</button>
+            <button class="btn" onclick="toggleSection('download')">🎓 下載證書</button>
+            <form method="POST" action="cancel_registration.php" style="display:inline-block;">
+                <button type="submit" class="btn" onclick="return confirm('確定要取消報名嗎？');">❌ 取消報名</button>
+            </form>
+        </div>
 
-        <?php if (!$submission): ?>
+        <!-- 區塊容器：作品提交 -->
+        <div id="section-submission" class="action-section">
+            <?php if (!empty($message) && isset($_POST['submit_submission'])): ?>
+                <p class="message"><?= htmlspecialchars($message) ?></p>
+            <?php endif; ?>
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="submit_submission" value="1">
                 <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"></textarea></div>
@@ -301,10 +340,13 @@ try {
                 <div class="form-group"><label>程式碼壓縮檔（請上傳小於 10MB）：</label><input type="file" name="code_file" accept=".zip,.rar,.7z" required onchange="checkFileSize(this)"></div>
                 <button type="submit" class="btn">提交作品</button>
             </form>
-        <?php else: ?>
+        </div>
+
+        <!-- 區塊容器：更新作品 -->
+        <div id="section-update" class="action-section">
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_submission" value="1">
-                <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"><?= htmlspecialchars($submission['Description']) ?></textarea></div>
+                <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"><?php if (is_array($submission) && isset($submission['Description'])) echo htmlspecialchars($submission['Description']); ?></textarea></div>
                 <div class="form-group">
                     <label>已上傳檔案：</label>
                     <ul>
@@ -324,22 +366,32 @@ try {
                 <div class="form-group"><label>程式碼壓縮檔：</label><input type="file" name="code_file" accept=".zip,.rar,.7z" onchange="checkFileSize(this)"></div>
                 <button type="submit" class="btn">更新作品</button>
             </form>
+        </div>
 
+        <!-- 區塊容器：刪除作品 -->
+        <div id="section-delete" class="action-section">
             <form method="POST" onsubmit="return confirm('確定要刪除這份作品嗎？')">
                 <input type="hidden" name="delete_submission" value="1">
                 <button type="submit" class="btn" style="background-color: #d9534f;">刪除作品</button>
             </form>
-        <?php endif; ?>
+        </div>
 
-        <?php if ($team && $submission): ?>
-            <hr>
-            <h2>下載參賽證書</h2>
+        <!-- 區塊容器：下載證書 -->
+        <div id="section-download" class="action-section">
             <form action="download_certificate.php" method="POST" target="_blank">
                 <input type="hidden" name="team_name" value="<?= htmlspecialchars($team['TeamName']) ?>">
                 <p>您的參賽證書已準備好，點擊下方按鈕即可下載：</p>
                 <button type="submit" class="btn">🎓 下載參賽證書</button>
             </form>
-        <?php endif; ?>
+        </div>
+
+        <script>
+            function toggleSection(id) {
+                document.querySelectorAll('.action-section').forEach(el => el.style.display = 'none');
+                const section = document.getElementById('section-' + id);
+                if (section) section.style.display = 'block';
+            }
+        </script>
     </div>
 </body>
 
