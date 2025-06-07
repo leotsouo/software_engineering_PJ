@@ -203,7 +203,6 @@ try {
         <div class="buttons">
             <a href="signup_form.php">報名</a>
             <a href="login_select.html">登入</a>
-            <a href="cancel_registration.php">取消報名</a>
         </div>
     </header>
 
