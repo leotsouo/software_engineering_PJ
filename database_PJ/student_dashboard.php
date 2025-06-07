@@ -278,15 +278,41 @@ try {
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="submit_submission" value="1">
                 <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"></textarea></div>
-                <div class="form-group">（請上傳小於 10MB）<input type="file" name="poster_file" accept=".jpg,.jpeg,.png,.pdf" required onchange="checkFileSize(this)"></div>
-                <div class="form-group">（請上傳小於 10MB）<input type="file" name="video_file" accept="video/*" required onchange="checkFileSize(this)"></div>
-                <div class="form-group">（請上傳小於 10MB）<input type="file" name="code_file" accept=".zip,.rar,.7z" required onchange="checkFileSize(this)"></div>
-                <button type="submit" class="btn">提交作品</button>
+                <div class="form-group">
+                    <label>海報檔案（請上傳小於 10MB）：</label>
+                    <input type="file" name="poster_file" accept=".jpg,.jpeg,.png,.pdf" required onchange="checkFileSize(this)">
+                </div>
+
+                <div class="form-group">
+                    <label>影片檔案（請上傳小於 10MB）：</label>
+                    <input type="file" name="video_file" accept="video/*" required onchange="checkFileSize(this)">
+                </div>
+
+                <div class="form-group">
+                    <label>程式碼壓縮檔（請上傳小於 10MB）：</label>
+                    <input type="file" name="code_file" accept=".zip,.rar,.7z" required onchange="checkFileSize(this)">
+                </div>
+
             </form>
         <?php else: ?>
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_submission" value="1">
                 <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"><?= htmlspecialchars($submission['Description']) ?></textarea></div>
+                <!-- ✅ 新增這段 -->
+                <div class="form-group">
+                    <label>已上傳檔案：</label>
+                    <ul>
+                        <?php if (!empty($submission['PosterLink'])): ?>
+                            <li><a href="<?= htmlspecialchars($submission['PosterLink']) ?>" target="_blank">📄 海報檔案</a></li>
+                        <?php endif; ?>
+                        <?php if (!empty($submission['VideoLink'])): ?>
+                            <li><a href="<?= htmlspecialchars($submission['VideoLink']) ?>" target="_blank">🎬 影片檔案</a></li>
+                        <?php endif; ?>
+                        <?php if (!empty($submission['CodeLink'])): ?>
+                            <li><a href="<?= htmlspecialchars($submission['CodeLink']) ?>" target="_blank">💻 程式碼壓縮檔</a></li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
                 <div class="form-group"><label>海報檔案：</label><input type="file" name="poster_file" accept=".jpg,.jpeg,.png,.pdf" onchange="checkFileSize(this)"></div>
                 <div class="form-group"><label>影片檔案：</label><input type="file" name="video_file" accept="video/*" onchange="checkFileSize(this)"></div>
                 <div class="form-group"><label>程式碼壓縮檔：</label><input type="file" name="code_file" accept=".zip,.rar,.7z" onchange="checkFileSize(this)"></div>
