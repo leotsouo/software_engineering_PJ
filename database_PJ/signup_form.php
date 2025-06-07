@@ -86,11 +86,11 @@ try {
                 <label for="teacher_id">選擇老師*</label>
                 <select id="teacher_id" name="teacher_id" required>
                     <option value="">請選擇老師</option>
-                    <?php
-                    foreach ($teachers as $teacher) {
-                        echo "<option value=\"{$teacher['TeacherID']}\">{$teacher['Name']}</option>";
-                    }
-                    ?>
+                    <?php foreach ($teachers as $teacher): ?>
+                        <option value="<?= htmlspecialchars($teacher['TeacherID']) ?>">
+                            <?= htmlspecialchars($teacher['Name']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
                 <a href="index.php"><button type="button">回首頁</button></a>
                 <button type="button" onclick="nextStep()">下一步</button>
@@ -113,17 +113,6 @@ try {
                 <button type="button" onclick="prevStep()">上一步</button>
                 <button type="button" onclick="nextStep()">下一步</button>
             </div>
-
-            <!-- Step 3: 作品資訊 -->
-            <!-- <div class="step">
-                <label for="project-name">作品名稱*</label>
-                <input type="text" id="project-name" name="project_name" required>
-
-                <label for="project-summary">作品摘要(300字以內)*</label>
-                <textarea id="project-summary" name="project_summary" maxlength="300" required></textarea>
-                <button type="button" onclick="prevStep()">上一步</button>
-                <button type="button" onclick="nextStep()">下一步</button>
-            </div> -->
 
             <!-- Step 4: 隊員資訊 -->
             <div class="step">
@@ -148,22 +137,18 @@ try {
         let currentStep = 0;
 
         function showStep(step) {
-            steps.forEach((el, index) => {
-                el.classList.toggle('active', index === step);
-            });
+            steps.forEach((el, idx) => el.classList.toggle('active', idx === step));
         }
 
         function nextStep() {
-            const currentInputs = steps[currentStep].querySelectorAll('input, select, textarea');
+            const inputs = steps[currentStep].querySelectorAll('input, select, textarea');
             let valid = true;
-
-            currentInputs.forEach(input => {
-                if (!input.checkValidity()) {
-                    input.reportValidity();
+            inputs.forEach(i => {
+                if (!i.checkValidity()) {
+                    i.reportValidity();
                     valid = false;
                 }
             });
-
             if (valid && currentStep < steps.length - 1) {
                 currentStep++;
                 showStep(currentStep);
@@ -178,35 +163,62 @@ try {
         }
 
         function generateMemberInputs() {
-    const container = document.getElementById('members-container');
-    container.innerHTML = ''; // 清空之前的輸入欄位
-    const teamSize = parseInt(document.getElementById('team-size').value);
+            const container = document.getElementById('members-container');
+            container.innerHTML = '';
+            const teamSize = parseInt(document.getElementById('team-size').value);
 
-    if (teamSize > 0) {
-        for (let i = 1; i <= teamSize; i++) {
-            const memberHtml = `
-                <div>
-                    <label>隊員${i}</label>
-                    <input type="text" name="members[${i}][name]" placeholder="姓名" required>
-                    <input type="text" name="members[${i}][student_id]" placeholder="學號" required>                    
-                    <label for="gender-${i}">性別</label>
-                    <select name="members[${i}][gender]" id="gender-${i}" required>
-                        <option value="">請選擇性別</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
-                    
-                    <input type="text" name="members[${i}][phone]" placeholder="電話" required>
-                    <input type="email" name="members[${i}][email]" placeholder="Email" required>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', memberHtml);
+            for (let i = 1; i <= teamSize; i++) {
+                container.insertAdjacentHTML('beforeend', `
+                    <div>
+                        <label>隊員${i}</label>
+                        <input
+                        type="text"
+                        name="members[${i}][name]"
+                        placeholder="姓名"
+                        required
+                        pattern="[\p{L}\s]{2,20}"
+                        title="只能填中文或英文，2~20字"
+                        >
+                        <input
+                        type="text"
+                        name="members[${i}][student_id]"
+                        placeholder="學號 (格式：A1234567)"
+                        required
+                        pattern="[A-Za-z]{1}\\d{7}"
+                        title="學號格式：一位英文字母＋7位數字"
+                        maxlength="8"
+                        >
+                        <label for="gender-${i}">性別</label>
+                        <select
+                        name="members[${i}][gender]"
+                        id="gender-${i}"
+                        required
+                        >
+                            <option value="">請選擇性別</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input
+                        type="tel"
+                        name="members[${i}][phone]"
+                        placeholder="電話"
+                        required
+                        pattern="09\\d{8}"
+                        title="手機格式：09xxxxxxxx"
+                        maxlength="10"
+                        >
+                        <input
+                        type="email"
+                        name="members[${i}][email]"
+                        placeholder="Email"
+                        required
+                        >
+                    </div>
+                `);
+            }
         }
-    }
-}
 
-
-        // 初始化顯示第一步
         showStep(currentStep);
     </script>
 </body>
