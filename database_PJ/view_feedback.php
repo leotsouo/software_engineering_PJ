@@ -116,7 +116,7 @@ $average = $count > 0 ? round($total / $count, 2) : 0;
             <div class="avg">⭐ 總平均：<?= $average ?> 分</div>
         <?php endif; ?>
 
-        <a href="index.php">回首頁</a>
+        <a href="student_dashboard.php">回上一頁</a>
     </div>
 </body>
 </html>
