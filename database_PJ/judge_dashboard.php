@@ -7,15 +7,25 @@ if (!isset($_SESSION['judge_id'])) {
     exit();
 }
 
+$judge_id = $_SESSION['judge_id'];
 $judge_name = $_SESSION['judge_name'];
 
-// 撈隊伍
 $team_stmt = $pdo->query("SELECT TeamID, TeamName, competition_category FROM team");
 $teams = $team_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 撈評分標準
 $criteria_stmt = $pdo->query("SELECT * FROM criteria ORDER BY id ASC");
 $criteria_list = $criteria_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// 撈出自己打過的分數
+$my_scores_stmt = $pdo->prepare("
+    SELECT s.ScoreID, s.TeamID, t.TeamName, s.ScoreValue, s.Comment
+    FROM score s
+    JOIN team t ON s.TeamID = t.TeamID
+    WHERE s.JudgeID = :judge_id
+    ORDER BY s.Timestamp DESC
+");
+$my_scores_stmt->execute(['judge_id' => $judge_id]);
+$my_scores = $my_scores_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -106,13 +116,13 @@ $criteria_list = $criteria_stmt->fetchAll(PDO::FETCH_ASSOC);
         textarea {
             resize: vertical;
         }
-        input[type="submit"] {
+        input[type="submit"], button {
             padding: 12px 20px;
             background-color: #0073e6;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
         }
         input[type="submit"]:hover {
@@ -125,10 +135,12 @@ $criteria_list = $criteria_stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>評審主頁面</h2>
     <div class="welcome">歡迎，<?= htmlspecialchars($judge_name) ?>！</div>
 
-    <div class="button-group">
-        <button onclick="showSection('teams')">隊伍列表</button>
-        <button onclick="showSection('addScore')">新增評分</button>
+   <div class="button-group">
+    <button onclick="showSection('teams')">隊伍列表</button>
+    <button onclick="showSection('addScore')">新增評分</button>
+    <button onclick="showSection('deleteScore')">刪除評分</button>
     </div>
+
 
     <!-- 隊伍列表 -->
     <div id="section-teams" class="section active">
@@ -184,6 +196,40 @@ $criteria_list = $criteria_stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <input type="submit" value="提交評分">
         </form>
+    </div>
+
+    <!-- 刪除評分 -->
+    <div id="section-deleteScore" class="section">
+        <h4>刪除評分</h4>
+        <?php if (empty($my_scores)): ?>
+            <p>⚠️ 尚無可刪除評分紀錄</p>
+        <?php else: ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>隊伍名稱</th>
+                        <th>分數</th>
+                        <th>評論</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($my_scores as $score): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($score['TeamName']) ?></td>
+                            <td><?= $score['ScoreValue'] ?></td>
+                            <td><?= htmlspecialchars($score['Comment']) ?></td>
+                            <td>
+                                <form method="POST" action="delete_score.php" onsubmit="return confirm('確定要刪除這筆評分嗎？');">
+                                    <input type="hidden" name="score_id" value="<?= $score['ScoreID'] ?>">
+                                    <button type="submit" style="background-color: #d9534f;">刪除</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 </div>
 
