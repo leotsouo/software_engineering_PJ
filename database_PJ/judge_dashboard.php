@@ -63,6 +63,7 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,12 +75,14 @@ try {
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #0057b8;
             color: white;
             padding: 15px;
             text-align: center;
         }
+
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -88,23 +91,29 @@ try {
             border-radius: 8px;
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        table th, table td {
+
+        table th,
+        table td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
         }
+
         table th {
             background-color: #0057b8;
             color: white;
         }
+
         table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .btn {
             display: inline-block;
             background-color: #0073e6;
@@ -116,22 +125,45 @@ try {
             transition: background-color 0.3s ease;
             margin-bottom: 20px;
         }
+
         .btn:hover {
             background-color: #005bb5;
         }
+
         .message {
             color: green;
             font-weight: bold;
             margin-bottom: 20px;
         }
+
         .error-message {
             color: red;
             font-weight: bold;
             margin-bottom: 20px;
         }
+
+        /* ✅ 登出按鈕右上角 */
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
+
 <body>
+    <a href="index.php" class="logout-btn">登出</a>
     <header>
         <h1>評審主頁面</h1>
         <p>歡迎，<?= htmlspecialchars($judge_name) ?>！</p>
@@ -210,8 +242,7 @@ try {
             </tbody>
         </table>
 
-        <!-- 回首頁按鈕 -->
-        <a href="index.php" class="btn">回首頁</a>
     </div>
 </body>
+
 </html>
