@@ -2,7 +2,7 @@
 $host = 'localhost';
 $dbname = 'database_pj'; // 替換為您的資料庫名稱
 $username = 'root'; // 替換為您的資料庫用戶名
-$password = 'rico20040312'; // 替換為您的資料庫密碼
+$password = ''; // 替換為您的資料庫密碼
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
