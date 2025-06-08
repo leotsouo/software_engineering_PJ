@@ -821,7 +821,7 @@ try {
     </div>
 
     <!-- 回首頁按鈕 (可自行調整連結) -->
-    <a href="index.php" class="btn">回首頁</a>
+    <a href="logout.php" class="btn">登出回首頁</a>
 
 </div>
 </body>
