@@ -20,6 +20,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -193,6 +194,7 @@ try {
         });
     </script>
 </head>
+
 <body>
     <header>
         <div class="logo"> 高大激發學生創意競賽</div>
@@ -220,6 +222,7 @@ try {
     <div class="announcement">
         <h2>最新公告</h2>
         <ul>
+            <li><a href="past_works.php">歷屆作品</a></li>
             <?php if (empty($announcements)): ?>
                 <li>目前無公告。</li>
             <?php else: ?>

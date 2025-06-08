@@ -1,41 +1,24 @@
 <?php
-require_once 'db_connection.php'; // 引入資料庫連接文件
+require_once 'db_connection.php';
+
+$keyword = $_GET['keyword'] ?? '';
+$category = $_GET['category'] ?? '';
 
 try {
-    // 查詢創意發想組的成績
-    $sql_creative = "
-        SELECT 
-            t.TeamID,
-            t.TeamName,
-            t.competition_category,
-            IFNULL(SUM(s.ScoreValue) / COUNT(DISTINCT s.JudgeID), 0) AS AverageScore
-        FROM 
-            team t
-        LEFT JOIN 
-            score s ON t.TeamID = s.TeamID
-        WHERE 
-            t.competition_category = '創意發想組'
-        GROUP BY 
-            t.TeamID
-        ORDER BY 
-            AverageScore DESC";
-    $stmt_creative = $pdo->prepare($sql_creative);
-    $stmt_creative->execute();
-    $creative_scores = $stmt_creative->fetchAll(PDO::FETCH_ASSOC);
+    $where = "WHERE 1=1";
+    $params = [];
 
-    // 更新創意發想組的組別排名
-    $rank = 1;
-    foreach ($creative_scores as $team) {
-        $sql_update_rank = "UPDATE team SET Rank = :rank WHERE TeamID = :team_id";
-        $stmt_update = $pdo->prepare($sql_update_rank);
-        $stmt_update->bindParam(':rank', $rank, PDO::PARAM_INT);
-        $stmt_update->bindParam(':team_id', $team['TeamID'], PDO::PARAM_INT);
-        $stmt_update->execute();
-        $rank++;
+    if ($category !== '') {
+        $where .= " AND t.competition_category = ?";
+        $params[] = $category;
     }
 
-    // 查詢創業實作組的成績
-    $sql_entrepreneur = "
+    if ($keyword !== '') {
+        $where .= " AND t.TeamName LIKE ?";
+        $params[] = "%$keyword%";
+    }
+
+    $sql = "
         SELECT 
             t.TeamID,
             t.TeamName,
@@ -45,25 +28,19 @@ try {
             team t
         LEFT JOIN 
             score s ON t.TeamID = s.TeamID
-        WHERE 
-            t.competition_category = '創業實作組'
+        $where
         GROUP BY 
-            t.TeamID
+            t.TeamID, t.competition_category
         ORDER BY 
-            AverageScore DESC";
-    $stmt_entrepreneur = $pdo->prepare($sql_entrepreneur);
-    $stmt_entrepreneur->execute();
-    $entrepreneur_scores = $stmt_entrepreneur->fetchAll(PDO::FETCH_ASSOC);
+            t.competition_category, AverageScore DESC";
 
-    // 更新創業實作組的組別排名
-    $rank = 1;
-    foreach ($entrepreneur_scores as $team) {
-        $sql_update_rank = "UPDATE team SET Rank = :rank WHERE TeamID = :team_id";
-        $stmt_update = $pdo->prepare($sql_update_rank);
-        $stmt_update->bindParam(':rank', $rank, PDO::PARAM_INT);
-        $stmt_update->bindParam(':team_id', $team['TeamID'], PDO::PARAM_INT);
-        $stmt_update->execute();
-        $rank++;
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $all_scores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $grouped = ['創意發想組' => [], '創業實作組' => []];
+    foreach ($all_scores as $row) {
+        $grouped[$row['competition_category']][] = $row;
     }
 } catch (PDOException $e) {
     die("資料獲取失敗: " . $e->getMessage());
@@ -72,9 +49,9 @@ try {
 
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>成績與排名</title>
     <style>
         body {
@@ -83,42 +60,53 @@ try {
             margin: 0;
             padding: 20px;
         }
+
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
+
         h1 {
             color: #0057b8;
             text-align: center;
         }
+
         h2 {
             color: #0073e6;
+            margin-top: 40px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        table th, table td {
+
+        table th,
+        table td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
         }
+
         table th {
             background-color: #0057b8;
             color: white;
         }
+
         table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .rank {
             font-weight: bold;
             color: #0057b8;
         }
+
         .btn {
             background-color: #0073e6;
             color: white;
@@ -127,75 +115,82 @@ try {
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s ease;
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            margin-top: 20px;
         }
+
         .btn:hover {
             background-color: #005bb5;
         }
+
+        .filter {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter input,
+        .filter select {
+            padding: 6px 10px;
+            margin-right: 10px;
+        }
+
+        .no-result {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin: 40px 0;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>成績與排名</h1>
 
-        <!-- 創意發想組 -->
-        <h2>創意發想組</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>排名</th>
-                    <th>隊伍名稱</th>
-                    <th>平均分數</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($creative_scores)): ?>
-                    <tr>
-                        <td colspan="3">目前無隊伍資料。</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($creative_scores as $index => $team): ?>
-                        <tr>
-                            <td class="rank"><?= $index + 1 ?></td>
-                            <td><?= htmlspecialchars($team['TeamName']) ?></td>
-                            <td><?= number_format($team['AverageScore'], 2) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+        <div class="filter">
+            <form method="get">
+                <select name="category">
+                    <option value="">全部組別</option>
+                    <option value="創意發想組" <?= $category === '創意發想組' ? 'selected' : '' ?>>創意發想組</option>
+                    <option value="創業實作組" <?= $category === '創業實作組' ? 'selected' : '' ?>>創業實作組</option>
+                </select>
+                <input type="text" name="keyword" placeholder="搜尋隊伍名稱" value="<?= htmlspecialchars($keyword) ?>">
+                <button type="submit">搜尋</button>
+            </form>
+        </div>
 
-        <!-- 創業實作組 -->
-        <h2>創業實作組</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>排名</th>
-                    <th>隊伍名稱</th>
-                    <th>平均分數</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($entrepreneur_scores)): ?>
-                    <tr>
-                        <td colspan="3">目前無隊伍資料。</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($entrepreneur_scores as $index => $team): ?>
-                        <tr>
-                            <td class="rank"><?= $index + 1 ?></td>
-                            <td><?= htmlspecialchars($team['TeamName']) ?></td>
-                            <td><?= number_format($team['AverageScore'], 2) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
+        <?php if (empty($grouped['創意發想組']) && empty($grouped['創業實作組'])): ?>
+            <div class="no-result">🔍 查無符合條件的隊伍資料</div>
+        <?php else: ?>
+            <?php foreach ($grouped as $group_name => $teams): ?>
+                <?php if (!empty($teams)): ?>
+                    <h2><?= htmlspecialchars($group_name) ?></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>隊伍名稱</th>
+                                <th>平均分數</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($teams as $index => $team): ?>
+                                <tr>
+                                    <td class="rank"><?= $index + 1 ?></td>
+                                    <td><?= htmlspecialchars($team['TeamName']) ?></td>
+                                    <td><?= number_format($team['AverageScore'], 2) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 <?php endif; ?>
-            </tbody>
-        </table>
-        <!-- 回首頁按鈕 -->
-        <a href="index.php" class="btn">回首頁</a>
+            <?php endforeach; ?>
+        <?php endif; ?>
+
+        <div style="text-align:center;">
+            <a href="index.php" class="btn">回首頁</a>
+        </div>
     </div>
 </body>
+
 </html>
