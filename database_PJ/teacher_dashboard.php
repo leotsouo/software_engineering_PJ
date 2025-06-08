@@ -30,6 +30,15 @@ try {
         $stmt_past_projects = $pdo->query($sql_past_projects);
         $past_projects = $stmt_past_projects->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // ------------------ 歷屆作品查詢 ------------------
+    $view_past_projects = isset($_GET['view_past_projects']) && $_GET['view_past_projects'] === '1';
+    $past_projects = [];
+    if ($view_past_projects) {
+        $sql_pp = "SELECT PastTeamID, ProjectName, PostYear FROM past_projects";
+        $stmt_pp = $pdo->query($sql_pp);
+        $past_projects = $stmt_pp->fetchAll(PDO::FETCH_ASSOC);
+    }
 } catch (PDOException $e) {
     die("資料獲取失敗: " . $e->getMessage());
 }
