@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2025-06-03 16:44:10
+-- 產生時間： 2025-06-08 09:48:34
 -- 伺服器版本： 10.4.32-MariaDB
 -- PHP 版本： 8.2.12
 
@@ -122,6 +122,27 @@ INSERT INTO `carousel` (`CarouselID`, `ImagePath`, `Caption`, `PublishDate`) VAL
 -- --------------------------------------------------------
 
 --
+-- 資料表結構 `criteria`
+--
+
+CREATE TABLE `criteria` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `criteria`
+--
+
+INSERT INTO `criteria` (`id`, `name`) VALUES
+(1, '創意'),
+(2, '技術實現'),
+(3, '可行性'),
+(4, '簡報表現');
+
+-- --------------------------------------------------------
+
+--
 -- 資料表結構 `judge`
 --
 
@@ -217,8 +238,8 @@ INSERT INTO `score` (`ScoreID`, `JudgeID`, `TeamID`, `ScoreValue`, `Comment`, `T
 (21, 4, 8, 100, '100', '2025-01-06 12:21:04'),
 (22, 5, 8, 68, '60', '2025-01-06 12:23:08'),
 (23, 1, 5, 90, 'good', '2025-01-06 16:18:57'),
-(24, 1, 22, 100, '厲害', '2025-01-06 16:20:01'),
-(25, 3, 22, 90, '666', '2025-01-06 16:21:01');
+(25, 3, 22, 90, '666', '2025-01-06 16:21:01'),
+(28, 1, 22, 21, '21', '2025-06-07 16:59:38');
 
 -- --------------------------------------------------------
 
@@ -332,15 +353,16 @@ CREATE TABLE `team` (
 
 INSERT INTO `team` (`TeamID`, `competition_category`, `TeamName`, `RegistrationDate`, `Rank`, `TeacherID`) VALUES
 (5, '創意發想組', '好棒棒', '2025-01-06', 5, 17),
-(6, '創業實作組', '21332', '2025-01-01', 3, 14),
-(8, '創業實作組', 'test1', '2024-12-19', 4, 38),
+(6, '創業實作組', '21332', '2025-01-01', 2, 14),
+(8, '創業實作組', 'test1', '2024-12-19', 3, 38),
 (9, '創意發想組', '444', '2025-01-02', 1, 10),
 (10, '創意發想組', '333', '2025-01-02', 4, 10),
 (12, '創意發想組', '565', '2025-01-02', 3, 10),
 (18, '創意發想組', '123', '2025-01-02', 2, 10),
-(21, '創業實作組', '666', '2025-01-01', 2, 16),
-(22, '創業實作組', '廖777', '2025-01-06', 1, 1),
-(24, '創意發想組', '測試demo', '2025-01-06', 6, 1);
+(21, '創業實作組', '666', '2025-01-01', 1, 16),
+(22, '創業實作組', '廖777', '2025-01-06', 4, 1),
+(24, '創意發想組', '測試demo', '2025-01-06', 7, 1),
+(25, '創意發想組', '測試123', '2025-06-30', 6, 1);
 
 -- --------------------------------------------------------
 
@@ -374,7 +396,9 @@ INSERT INTO `teammember` (`MemberID`, `TeamID`, `Name`, `StudentID`, `Gender`, `
 (32, 22, 'liao777', '1', 'Male', '123', 'liao777@gmail.com'),
 (33, 22, 'liao666', 'liao666', 'Male', '123', 'liao666@gmail.com'),
 (36, 24, '廖000', '99999', 'Male', '88888', 'L234243@gmail.com'),
-(37, 24, '陳123', '000000', 'Male', '123213', 'dja12s@gmail.com');
+(37, 24, '陳123', '000000', 'Male', '123213', 'dja12s@gmail.com'),
+(38, 25, '1', '1123', 'Male', '1', '1@gmail'),
+(39, 25, '1', '13', 'Male', '1', '1@gmail');
 
 --
 -- 已傾印資料表的索引
@@ -404,6 +428,12 @@ ALTER TABLE `attachment`
 --
 ALTER TABLE `carousel`
   ADD PRIMARY KEY (`CarouselID`);
+
+--
+-- 資料表索引 `criteria`
+--
+ALTER TABLE `criteria`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- 資料表索引 `judge`
@@ -476,6 +506,12 @@ ALTER TABLE `carousel`
   MODIFY `CarouselID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- 使用資料表自動遞增(AUTO_INCREMENT) `criteria`
+--
+ALTER TABLE `criteria`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- 使用資料表自動遞增(AUTO_INCREMENT) `judge`
 --
 ALTER TABLE `judge`
@@ -491,7 +527,7 @@ ALTER TABLE `past_projects`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `score`
 --
 ALTER TABLE `score`
-  MODIFY `ScoreID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `ScoreID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `submission`
@@ -509,13 +545,13 @@ ALTER TABLE `teacher`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `team`
 --
 ALTER TABLE `team`
-  MODIFY `TeamID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `TeamID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `teammember`
 --
 ALTER TABLE `teammember`
-  MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- 已傾印資料表的限制式

@@ -143,133 +143,136 @@ try {
     <meta charset="UTF-8">
     <title>學生儀表板</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #eef3fa;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #eef3fa;
+        margin: 0;
+        padding: 0;
+    }
 
-        header {
-            background-color: #0057b8;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    header {
+        background-color: #0057b8;
+        color: white;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
-        }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
 
-        table th,
-        table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
+    table th,
+    table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
 
-        table th {
-            background-color: #0057b8;
-            color: white;
-        }
+    table th {
+        background-color: #0057b8;
+        color: white;
+    }
 
-        table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
 
-        .btn {
-            background-color: #0073e6;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
+    .btn {
+        background-color: #0073e6;
+        color: white;
+        padding: 14px 26px; /* 放大按鈕 */
+        border-radius: 7px;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
 
-        .btn:hover {
-            background-color: #005bb5;
-        }
+    .btn:hover {
+        background-color: #005bb5;
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    .form-group {
+        margin-bottom: 15px;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
 
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
 
-        .message {
-            color: green;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
+    .message {
+        color: green;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
 
-        /* ✅ 登出按鈕樣式與定位 */
-        .logout-btn {
-            background-color: #007BFF;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-        }
+    .logout-btn {
+        background-color: #007BFF;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+    }
 
-        .logout-btn:hover {
-            background-color: #0056b3;
-        }
+    .logout-btn:hover {
+        background-color: #0056b3;
+    }
 
+    .button-group {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-        .button-group {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    .button-group .btn {
+        margin: 0 10px 12px 0;
+        padding: 14px 26px; /* 放大按鈕 */
+        font-size: 16px;
+        border-radius: 10px;
+        background-color: #0073e6;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
 
-        .button-group .btn {
-            margin: 0 8px 10px 0;
-            padding: 10px 18px;
-            font-size: 15px;
-            border-radius: 8px;
-            background-color: #0073e6;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+    .button-group .btn:hover {
+        background-color: #004a99;
+    }
 
-        .button-group .btn:hover {
-            background-color: #004a99;
-        }
+    .action-section {
+        display: none;
+        margin-top: 20px;
+    }
+</style>
 
-        .action-section {
-            display: none;
-            margin-top: 20px;
-        }
-    </style>
 
     <script>
         function checkFileSize(input) {
@@ -316,12 +319,12 @@ try {
             </table>
         <?php else: ?><p>尚未加入任何隊伍。</p><?php endif; ?>
 
-        <h2>操作區</h2>
+        <h2>功能</h2>
         <div class="button-group">
-            <button class="btn" onclick="toggleSection('submission')">📤 作品提交</button>
-            <button class="btn" onclick="toggleSection('update')">✏️ 更新作品</button>
-            <button class="btn" onclick="toggleSection('delete')">🗑️ 刪除作品</button>
-            <button class="btn" onclick="toggleSection('download')">🎓 下載證書</button>
+            <button class="btn" onclick="toggleSection('submission')">作品提交</button>
+            <button class="btn" onclick="toggleSection('update')">更新作品</button>
+            <button class="btn" onclick="toggleSection('delete')">刪除作品</button>
+            <button class="btn" onclick="toggleSection('download')">下載證書</button>
             <form method="POST" action="cancel_registration.php" style="display:inline-block;">
                 <button type="submit" class="btn" onclick="return confirm('確定要取消報名嗎？');">❌ 取消報名</button>
             </form>
@@ -334,7 +337,7 @@ try {
             <?php endif; ?>
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="submit_submission" value="1">
-                <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"></textarea></div>
+                <div class="form-group"><label>作品描述：</label><textarea name="description" required maxlength="500" rows="4"></textarea></div>
                 <div class="form-group"><label>海報檔案（請上傳小於 10MB）：</label><input type="file" name="poster_file" accept=".jpg,.jpeg,.png,.pdf" required onchange="checkFileSize(this)"></div>
                 <div class="form-group"><label>影片檔案（請上傳小於 10MB）：</label><input type="file" name="video_file" accept="video/*" required onchange="checkFileSize(this)"></div>
                 <div class="form-group"><label>程式碼壓縮檔（請上傳小於 10MB）：</label><input type="file" name="code_file" accept=".zip,.rar,.7z" required onchange="checkFileSize(this)"></div>
@@ -346,7 +349,7 @@ try {
         <div id="section-update" class="action-section">
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_submission" value="1">
-                <div class="form-group"><label>描述：</label><textarea name="description" required maxlength="500" rows="4"><?php if (is_array($submission) && isset($submission['Description'])) echo htmlspecialchars($submission['Description']); ?></textarea></div>
+                <div class="form-group"><label>作品描述：</label><textarea name="description" required maxlength="500" rows="4"><?php if (is_array($submission) && isset($submission['Description'])) echo htmlspecialchars($submission['Description']); ?></textarea></div>
                 <div class="form-group">
                     <label>已上傳檔案：</label>
                     <ul>
