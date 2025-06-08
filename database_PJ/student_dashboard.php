@@ -325,9 +325,11 @@ try {
             <button class="btn" onclick="toggleSection('update')">更新作品</button>
             <button class="btn" onclick="toggleSection('delete')">刪除作品</button>
             <button class="btn" onclick="toggleSection('download')">下載證書</button>
+            <button class="btn" onclick="toggleSection('download')">查看評語</button>
             <form method="POST" action="cancel_registration.php" style="display:inline-block;">
-                <button type="submit" class="btn" onclick="return confirm('確定要取消報名嗎？');">❌ 取消報名</button>
+                <button type="submit" class="btn" onclick="return confirm('確定要取消報名嗎？');">取消報名</button>
             </form>
+            <a href="view_feedback.php" class="btn" style="margin-left: 8px;">📝 查看評語</a>
         </div>
 
         <!-- 區塊容器：作品提交 -->
