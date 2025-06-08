@@ -174,7 +174,7 @@ try {
 </head>
 
 <body>
-    <a href="index.php" class="logout-btn">登出</a>
+    <a href="logout.php" class="logout-btn">登出回首頁</a>
     <header>
         <h1>教師主頁面</h1>
     </header>
