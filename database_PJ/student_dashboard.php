@@ -288,7 +288,7 @@ try {
 <body>
     <header>
         <div>歡迎，<?= isset($student['Name']) ? htmlspecialchars($student['Name']) : '學生' ?>！</div>
-        <a href="index.php" class="logout-btn">登出</a>
+        <a href="logout.php" class="logout-btn">登出回首頁</a>
     </header>
 
 

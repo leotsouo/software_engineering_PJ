@@ -170,7 +170,7 @@ try {
         <?php endif; ?>
 
         <!-- 回首頁按鈕 -->
-        <a href="index.php" class="btn">回首頁</a>
+        <a href="logout.php" class="btn">登出回首頁</a>
     </div>
 </body>
 </html>
